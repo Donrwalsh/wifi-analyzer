@@ -48,8 +48,7 @@ for filename in os.listdir('raw_files'):
         with open(building + ".csv",'a') as writeTo:
             wt = csv.writer(writeTo)
             for result in scan:
-
                 addList = [date, time]
-                for key in list_of_keys[-11:]:
+                for key in list_of_keys[-12:]:
                     addList.append(write_unicode(result.attributes[key].value))
                 wt.writerow(addList)
