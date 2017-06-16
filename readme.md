@@ -1,7 +1,28 @@
 # wifi-analyzer
 
-Working with data gathered from a portable wifi analyzer app, the goal of this project is to reduce the amount of manual interaction required to submit discovered data properly to Bastion.
+## Application Process:
 
-Initially, the wifi-analyzer.gs Google Script will take in a label name, and drive folder ID. It then scans the label for all messages and saves them as text files in the drive folder.
+Step 1: Retrieve all emails from a gmail account with a specified label (configured to be auto-applied on incoming messages). This is currently accomplished by a google script attached to the account. 
+**TODO: make this happen with python and attach it to a button click.**
 
-Next, the folder of raw files are parsed by converter.py. It creates or appends to csv files with building names (found from the subject of emails) and parses the XML text into csv files.
+Step 2: Go from XML to csv based on actions taken in converter.py. 
+**TODO: List out these actions concisely here**
+**TODO: Bring converter.py into the app**
+
+Step 3: Submit to Bastion
+**TODO: Get more details on how to do this.**
+**TODO: Do this**
+
+## Application Use:
+
+This application is intended for a single use-case and is tailored for that particular environment.
+**TODO: List specific environmental considerations**
+**TODO: Give installation instructions**
+
+## Data Flow:
+
+**TODO: This section**
+
+## Other:
+
+**TODO: What's going on with the docs folder?**
