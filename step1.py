@@ -1,6 +1,13 @@
 from __future__ import print_function
 import httplib2
 import os
+import pprint
+import email
+import base64
+import requests
+from datetime import datetime
+
+
 
 from apiclient import discovery
 from oauth2client import client
@@ -17,7 +24,7 @@ except ImportError:
 # at ~/.credentials/gmail-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
 CLIENT_SECRET_FILE = 'client_secret.json'
-APPLICATION_NAME = 'Gmail API Python Quickstart'
+APPLICATION_NAME = 'wifi-anayzer'
 
 
 def get_credentials():
@@ -30,7 +37,6 @@ def get_credentials():
         Credentials, the obtained credential.
     """
     credential_path = os.path.join(os.getcwd(), 'oauth.json')
-    print(credential_path)
     store = Storage(credential_path)
     credentials = store.get()
     if not credentials or credentials.invalid:
@@ -43,26 +49,49 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def main():
-    """Shows basic usage of the Gmail API.
+def GetMessageBody(service, user_id, msg_id):
+    try:
+            message = service.users().messages().get(userId=user_id, id=msg_id, format='raw').execute()
+            msg_str = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
+            mime_msg = email.message_from_string(msg_str)
+            messageMainType = mime_msg.get_content_maintype()
+            if messageMainType == 'multipart':
+                    for part in mime_msg.get_payload():
+                            if part.get_content_maintype() == 'text':
+                                    return part.get_payload()
+                    return ""
+            elif messageMainType == 'text':
+                    return mime_msg.get_payload()
+    except requests.HttpError, error:
+            print('An error occurred: %s' % error)
 
-    Creates a Gmail API service object and outputs a list of label names
-    of the user's Gmail account.
-    """
+
+def main():
+    #Create a Gmail API service object for queries:
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('gmail', 'v1', http=http)
 
-    results = service.users().labels().list(userId='me').execute()
-    labels = results.get('labels', [])
+    label_id = 'Label_301'
 
-    if not labels:
-        print('No labels found.')
-    else:
-      print('Labels:')
-      for label in labels:
-        print(label['name'])
-
+    #Download All, create manifest
+    list_msg_ids = service.users().messages().list(userId='me', labelIds=label_id, maxResults=500).execute()
+    for msg in list_msg_ids['messages']:
+        message = service.users().messages().get(userId='me', id=msg['id']).execute()
+        for item in message['payload']['headers']:
+            if item['name'] == "Subject":
+                subject = item['value']
+            if item['name'] == "Date":
+                format_date = datetime.strptime(item['value'][:-6], "%a, %d %b %Y %H:%M:%S")
+                date = format_date.strftime("%m-%d %H_%M")
+        building = subject.split(' ', 1)[0]
+        print("Date: " + date)
+        print("Subject: " + subject)
+        print("Building: " + building)
+        print("Name: " + building + " " + date + ".txt")
+        print("Message: " + GetMessageBody(service, 'me', msg['id'])[:-60])
+        exit()
+        #Currently displays data from the first record only. All seems well so far.
 
 if __name__ == '__main__':
     main()
