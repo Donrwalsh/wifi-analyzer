@@ -92,3 +92,5 @@ ENV/
 client_secret.json
 oauth.json
 .idea/*
+manifest.csv
+raw_data/*.txt

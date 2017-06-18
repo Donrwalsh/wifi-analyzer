@@ -6,9 +6,7 @@ import email
 import base64
 import requests
 from datetime import datetime
-
-
-
+import csv
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
@@ -49,7 +47,7 @@ def get_credentials():
         print('Storing credentials to ' + credential_path)
     return credentials
 
-def GetMessageBody(service, user_id, msg_id):
+def getMessageBody(service, user_id, msg_id):
     try:
             message = service.users().messages().get(userId=user_id, id=msg_id, format='raw').execute()
             msg_str = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
@@ -65,7 +63,6 @@ def GetMessageBody(service, user_id, msg_id):
     except requests.HttpError, error:
             print('An error occurred: %s' % error)
 
-
 def main():
     #Create a Gmail API service object for queries:
     credentials = get_credentials()
@@ -73,10 +70,15 @@ def main():
     service = discovery.build('gmail', 'v1', http=http)
 
     label_id = 'Label_301'
+    folderName = 'raw_data'
+    manifest = 'manifest.csv'
 
     #Download All, create manifest
     list_msg_ids = service.users().messages().list(userId='me', labelIds=label_id, maxResults=500).execute()
+    count = len(list_msg_ids['messages'])
+    i = 0
     for msg in list_msg_ids['messages']:
+        i = i + 1
         message = service.users().messages().get(userId='me', id=msg['id']).execute()
         for item in message['payload']['headers']:
             if item['name'] == "Subject":
@@ -85,13 +87,24 @@ def main():
                 format_date = datetime.strptime(item['value'][:-6], "%a, %d %b %Y %H:%M:%S")
                 date = format_date.strftime("%m-%d %H_%M")
         building = subject.split(' ', 1)[0]
-        print("Date: " + date)
-        print("Subject: " + subject)
-        print("Building: " + building)
-        print("Name: " + building + " " + date + ".txt")
-        print("Message: " + GetMessageBody(service, 'me', msg['id'])[:-60])
-        exit()
-        #Currently displays data from the first record only. All seems well so far.
+        name = building + " " + date + ".txt"
+        print(str(i) + "/" + str(count) + " " + str((i*100)/count) + "% Complete. " + "Creating " + name)
+        #Create the file:
+        file = open(folderName + "/" + name, "w")
+        file.write(getMessageBody(service, 'me', msg['id'])[:-60])
+        file.close()
+        #If it does not exist, create the manifest. Otherwise, add an entry
+        if os.path.isfile(manifest):
+            with open(manifest, 'a') as manifestFile:
+                mw = csv.writer(manifestFile)
+                mw.writerow([name, msg['id']])
+        else:
+            with open(manifest, 'wb') as manifestFile:
+                mw = csv.writer(manifestFile)
+                mw.writerow(["filename", "id"])
+                mw.writerow([name, msg['id']])
+
+
 
 if __name__ == '__main__':
     main()
