@@ -94,3 +94,4 @@ oauth.json
 .idea/*
 manifest.csv
 raw_data/*.txt
+bldg_csv/*.csv

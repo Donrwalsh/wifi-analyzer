@@ -8,8 +8,17 @@ The first step is to retrieve the necessary emails from a gmail address, all und
 
 ## Step 2:
 
-Several operations are done on the .txt files to convert them into proper .csv files. #TODO: What are these operations? etc. etc.
+Several operations are done to ensure only the desired data is converted and added to the .csv files.
+
+* Since the source XML txt is from an email, any signature is removed
+* Certain SSIDs must be ignored. (config.omittedSSIDs)
+* Colons are removed from BSSIDs, and the last two characters of the BBSID is replaced with a %
+* Finally, only entries with a unique SSID and BSSID are added to the building's .csv file
+
+## Step 3:
+
+???
 
 ## Where I am currently
 
-Step 1 is coded as a controller with methods to call, and I'm working on doing the same to Step 2 (should be a lot easier). As of now, it's coded to assume everything runs properly and I'll need to do a pass to catch errors that arise. The current plan is to consolidate at least Step 1 and 2 into a single button action, with Step 3 joining the fun depending on specifics.
+Step 1 and 2 are good to go, save for error handling. Step 3 requires checking in with the client, so waiting on that for now.
