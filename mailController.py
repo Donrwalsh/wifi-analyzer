@@ -96,5 +96,5 @@ def getMessageBody(service, user_id, msg_id):
                     return ""
             elif messageMainType == 'text':
                     return mime_msg.get_payload()
-    except requests.HttpError, error:
+    except requests.HttpError as error:
             print('An error occurred: %s' % error)

@@ -13,7 +13,7 @@ with open('README.md') as f:
 with open('LICENSE') as f:
     license = f.read()
 
-APP = ['simple.py']
+APP = ['windowController.py']
 DATA_FILES = []
 OPTIONS = {'argv_emulation': True}
 

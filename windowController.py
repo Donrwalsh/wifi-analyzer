@@ -1,12 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import sys
-import time
-import Queue
-from Tkinter import *
-import ttk
-from ttk import Frame, Button, Style, Label, Entry
-import Tkinter
+from tkinter import *
+from tkinter import ttk
 
 #Currently opens a non-working progress bar with the 'go' button.
 
@@ -15,9 +10,6 @@ class App(Frame):
     def __init__(self, parent):
         Frame.__init__(self, parent)
         self.parent = parent
-        self.initUI()
-
-    def initUI(self):
         self.parent.title("wifi-analyzer")
         self.pack(fill=BOTH, expand=True)
         self.centerWindow()
@@ -27,7 +19,8 @@ class App(Frame):
         self.rowconfigure(3, weight=1)
         self.rowconfigure(5, pad=7)
 
-        self.progress = ttk.Progressbar(self, orient=HORIZONTAL, length=500, mode='indeterminate')
+
+        self.progress = ttk.Progressbar(self, orient=HORIZONTAL, length=500, mode='determinate')
 
         self.hbtn = Button(self, text="Help")
         self.hbtn.grid(row=5, column=0, padx=5)
@@ -53,12 +46,12 @@ class App(Frame):
 
 
 def main():
-    root = Tkinter.Tk()
+    root = Tk()
     root.geometry("350x200+300+300")
+    root["bg"] = "black"
     app = App(root)
     root.mainloop()
 
 
 if __name__ == '__main__':
     main()
-
