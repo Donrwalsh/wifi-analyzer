@@ -1,14 +1,18 @@
+# -*- coding: utf-8 -*-
 import base64
 from oauth2client import client
 import csv
 from datetime import datetime
-from apiclient import discovery
+from googleapiclient import discovery
 import email
+import email.message
 import httplib2
 import os
 import requests
 from oauth2client.file import Storage
 from oauth2client import tools
+import pprint
+import quopri
 
 import config
 
@@ -31,10 +35,10 @@ def compareManifest():
     output = []
     for msg in list_msg_ids['messages']:
         mailMsgs.append(str(msg['id']))
-    if os.path.isfile(config.manifest):
-        with open(config.manifest, 'rb') as manifest:
-            manifestReader = csv.reader(manifest)
-            for row in manifestReader:
+    if os.path.isfile(os.path.join(config.directory, config.manifest)):
+        with open(os.path.join(config.directory, config.manifest), 'r', encoding="utf-8") as manifest:
+            mr = csv.reader(manifest)
+            for row in mr:
                 if row[1] != "id":
                     manifestMsgs.append(row[1])
     for item in mailMsgs:
@@ -55,22 +59,23 @@ def downloadMessageById(msgId):
             date = format_date.strftime("%m-%d %H_%M")
     building = subject.split(' ', 1)[0]
     name = building + " " + date + ".txt"
-    file = open(config.rawFolder + "/" + name, "w")
+    file = open(os.path.join(config.directory, config.rawFolder) + "/" + name, "w")
     file.write(getMessageBody(service, 'me', msgId))
     file.close()
     # If it does not exist, create the manifest. Otherwise, add an entry
-    if os.path.isfile(config.manifest):
-        with open(config.manifest, 'a') as manifestFile:
+    if os.path.isfile(os.path.join(config.directory, config.manifest)):
+        with open(os.path.join(config.directory, config.manifest), 'a') as manifestFile:
             mw = csv.writer(manifestFile)
             mw.writerow([name, msgId])
     else:
-        with open(config.manifest, 'wb') as manifestFile:
+        with open(os.path.join(config.directory, config.manifest), 'w') as manifestFile:
             mw = csv.writer(manifestFile)
             mw.writerow(["filename", "id"])
             mw.writerow([name, msgId])
+    return name
 
 def getCredentials():
-    credential_path = os.path.join(os.getcwd(), 'oauth.json')
+    credential_path = os.path.join(config.directory, 'oauth.json')
     store = Storage(credential_path)
     credentials = store.get()
     if not credentials or credentials.invalid:
@@ -85,16 +90,20 @@ def getCredentials():
 
 def getMessageBody(service, user_id, msg_id):
     try:
-            message = service.users().messages().get(userId=user_id, id=msg_id, format='raw').execute()
-            msg_str = base64.urlsafe_b64decode(message['raw'].encode('ASCII'))
-            mime_msg = email.message_from_string(msg_str)
-            messageMainType = mime_msg.get_content_maintype()
-            if messageMainType == 'multipart':
-                    for part in mime_msg.get_payload():
-                            if part.get_content_maintype() == 'text':
-                                    return part.get_payload()
-                    return ""
-            elif messageMainType == 'text':
-                    return mime_msg.get_payload()
-    except requests.HttpError as error:
+        message = service.users().messages().get(userId=user_id, id=msg_id, format='full').execute()
+        if 'parts' in message['payload']:
+            message_raw = message['payload']['parts'][0]['body']['data']
+        else:
+            message_raw = message['payload']['body']['data']
+        msg_str = base64.urlsafe_b64decode(message_raw.replace('-_', '+/').encode('ASCII'))
+        mime_msg = email.message_from_bytes(msg_str)
+        messageMainType = mime_msg.get_content_maintype()
+        if messageMainType == 'multipart':
+            for part in mime_msg.get_payload():
+                    if part.get_content_maintype() == 'text':
+                            return part.get_payload()
+            return ""
+        elif messageMainType == 'text':
+            return mime_msg.get_payload()
+    except requests.HTTPError as error:
             print('An error occurred: %s' % error)

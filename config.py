@@ -19,3 +19,5 @@ omittedSSIDs = ("UofM Secure", "eduroam", "UofM-Guest")
 
 #Enter the name of .txt files to skip in conversion
 skipTxt = ('Hhh 05-25 15_01.txt', 'Re: 05-30 10_36.txt', '.gitkeep')
+
+directory = ('/Users/lfarvour/Desktop/potato/')
