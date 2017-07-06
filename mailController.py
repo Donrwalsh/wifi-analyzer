@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
+
 # -*- coding: utf-8 -*-
 import base64
 from oauth2client import client
-import csv
 from datetime import datetime
 from googleapiclient import discovery
 import email
@@ -11,8 +12,6 @@ import os
 import requests
 from oauth2client.file import Storage
 from oauth2client import tools
-import pprint
-import quopri
 import manifestController
 
 import config
@@ -38,7 +37,7 @@ def downloadMessageById(msgId):
     message = service.users().messages().get(userId='me', id=msgId).execute()
     for item in message['payload']['headers']:
         if item['name'] == "Subject":
-            subject = item['value'].replace('\u200b', '')
+            subject = item['value'].replace('\u200b', '').replace('/', '')
         if item['name'] == "Date":
             format_date = datetime.strptime(item['value'][:-6], "%a, %d %b %Y %H:%M:%S")
             date = format_date.strftime("%m-%d %H_%M")

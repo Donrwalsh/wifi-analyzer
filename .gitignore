@@ -96,3 +96,16 @@ raw_data/*.txt
 bldg_csv/*.csv
 .idea/*
 Main.app/*
+
+#Modules included manually in platypus app:
+certifi/*
+chardet/*
+googleapiclient/*
+httplib2/*
+idna/*
+Main.app
+oauth2client/*
+requests/*
+uritemplate/*
+urllib3/*
+six.py
