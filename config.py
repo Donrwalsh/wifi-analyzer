@@ -9,7 +9,7 @@ bldgFolder = 'bldg_csv'
 
 #API Information:
 applicationName = 'wifi-analyzer'
-scopes = 'https://www.googleapis.com/auth/gmail.readonly'
+scopes = 'https://www.googleapis.com/auth/gmail.modify'
 
 #csv format:
 list_of_keys = ('Date', 'Time', 'SSID' , 'BSSID' , 'capabilities', 'frequency', 'level', 'centerFreq0',
@@ -20,4 +20,4 @@ omittedSSIDs = ("UofM Secure", "eduroam", "UofM-Guest")
 #Enter the name of .txt files to skip in conversion
 skipTxt = ('Hhh 05-25 15_01.txt', 'Re: 05-30 10_36.txt', '.gitkeep')
 
-directory = ('/Users/lfarvour/Desktop/potato/')
+directory = ('/Users/lfarvour/Desktop/wifi-analyzerG/')

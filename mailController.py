@@ -83,3 +83,11 @@ def getMessageBody(service, user_id, msg_id):
             return mime_msg.get_payload()
     except requests.HTTPError as error:
             print('An error occurred: %s' % error)
+            
+def markMessageAsRead(msg_id):
+	service = gmailAuth()
+	try:
+		service.users().messages().modify(userId='me', id=msg_id, body={ 'removeLabelIds': ['UNREAD']}).execute()
+		return True
+	except:
+		return False

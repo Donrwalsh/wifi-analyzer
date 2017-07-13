@@ -42,6 +42,10 @@ for message in new_ids:
     i = i + 1
     sprint("Downloading message ID: " + message + ", " + str(i) + "/" + str(len(new_ids)))
     sprint("Succesfully created " + mailController.downloadMessageById(message))
+    if mailController.markMessageAsRead(message):
+    	sprint("Marked " + message + " as read")
+    else:
+    	sprint("Unable to mark " + message + " as read, you may be on readonly config.")
 
 #Step 2
 r = csv.reader(open(os.path.join(config.directory, config.manifest)))
